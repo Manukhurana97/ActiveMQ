@@ -3,6 +3,7 @@ package com.example.demo.Controller;
 import com.example.demo.model.Email;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.advisory.DestinationSource;
@@ -27,8 +28,8 @@ public class PublishController {
     @Autowired
     private Environment env;
 
-
-    @PostMapping("/PublishEmail")
+//    for passing string
+    @PostMapping("/PublishString")
     public ResponseEntity<String> publishMessages(@RequestBody Email email){
         try{
             jmsTemplate.convertAndSend("emailqueue", email);
@@ -41,20 +42,46 @@ public class PublishController {
         }
     }
 
+//    for passing object
+    @PostMapping("/PublishEmail")
+    public ResponseEntity<String> publishEmail(@RequestBody Email email){
+        try{
+            jmsTemplate.send("emailqueue", em -> {
+                try{
+                    TextMessage tm = em.createTextMessage(new ObjectMapper().writeValueAsString(email));
+//                    tm.setJMSType(Email.class.getTypeName());
+                    tm.setStringProperty("emailinfo", Email.class.getTypeName());
+                    return tm;
+                }
+                catch(Exception e){
+                    throw new RuntimeException(e);
+                }
+            });
+            return new ResponseEntity<String>("Sent Seccessfully",HttpStatus.OK);
+        }
+        catch(Exception e)
+        {
+            return new ResponseEntity<String>(e.getMessage().toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
+
     @GetMapping("/ProcessQueue")
     public void processqueue() throws JMSException {
         ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
         Connection connection = connectionFactory.createConnection();
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
 
-        Queue queue = session.createQueue("emailqueue");
+        Queue queue = session.createQueue("emailqueue_temp");
+
         System.out.println("queue: "+queue);
         MessageConsumer consumer = session.createConsumer(queue);
         System.out.println("Start");
-        TextMessage textMsg = (TextMessage) consumer.receive();
-        System.out.println(textMsg);
-        System.out.println("Received: " + textMsg.getText());
+        Message receiveObj =  consumer.receive();
+        System.out.println("Received: " + receiveObj);
         session.close();
     }
 
