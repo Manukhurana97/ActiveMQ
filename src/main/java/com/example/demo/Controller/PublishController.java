@@ -29,18 +29,18 @@ public class PublishController {
     private Environment env;
 
 //    for passing string
-    @PostMapping("/PublishString")
-    public ResponseEntity<String> publishMessages(@RequestBody Email email){
-        try{
-            jmsTemplate.convertAndSend("emailqueue", email);
-
-            return new ResponseEntity<String>("Sent Seccessfully",HttpStatus.OK);
-        }
-        catch(Exception e)
-        {
-            return new ResponseEntity<String>(e.getMessage().toString(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @PostMapping("/PublishString")
+//    public ResponseEntity<String> publishMessages(@RequestBody Email email){
+//        try{
+//            jmsTemplate.convertAndSend("emailqueue", email);
+//
+//            return new ResponseEntity<String>("Sent Seccessfully",HttpStatus.OK);
+//        }
+//        catch(Exception e)
+//        {
+//            return new ResponseEntity<String>(e.getMessage().toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
 //    for passing object
     @PostMapping("/PublishEmail")
