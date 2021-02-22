@@ -18,6 +18,7 @@ import javax.jms.ConnectionFactory;
 public class EmailConsumer {
     private static final Logger logger = LoggerFactory.getLogger(EmailConsumer.class);
 
+
     @JmsListener(destination = "emailqueue", containerFactory = "EmailFactory")
     public void messsageListener(Email email)
     {

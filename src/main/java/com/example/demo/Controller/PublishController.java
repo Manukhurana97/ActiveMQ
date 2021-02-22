@@ -49,8 +49,9 @@ public class PublishController {
             jmsTemplate.send("emailqueue", em -> {
                 try{
                     TextMessage tm = em.createTextMessage(new ObjectMapper().writeValueAsString(email));
-//                    tm.setJMSType(Email.class.getTypeName());
+                    tm.setJMSType(Email.class.getTypeName());
                     tm.setStringProperty("emailinfo", Email.class.getTypeName());
+                    System.out.println(tm.getText());
                     return tm;
                 }
                 catch(Exception e){
