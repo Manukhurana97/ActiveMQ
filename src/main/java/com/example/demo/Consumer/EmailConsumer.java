@@ -27,6 +27,7 @@ public class EmailConsumer {
 
 
 //    --------------------------------------------------------------------------------------------------
+
     @JmsListener(destination = "emailed")
     public void emailListener(String email)
     {

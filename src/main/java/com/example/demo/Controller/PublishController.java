@@ -24,7 +24,6 @@ public class PublishController {
     private JmsTemplate jmsTemplate;
 
 
-
 //    for passing string
     @PostMapping("/PublishMessage")
     public ResponseEntity<String> publishMessages(@RequestBody String data){
@@ -36,9 +35,6 @@ public class PublishController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
-
 
 
 //    for passing object
@@ -69,22 +65,25 @@ public class PublishController {
     @GetMapping("/ProcessQueue")
     public void processqueue() {
         try {
-
-            ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+            ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
             Connection connection = connectionFactory.createConnection();
             connection.start();
             Session queueSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Queue queue = queueSession.createQueue("emailed");
-            QueueBrowser browser = queueSession.createBrowser(queue);
-            Enumeration<?> messagesInQueue = browser.getEnumeration();
-            System.out.println(messagesInQueue.toString());
+            Queue queue = queueSession.createQueue("emailed_temp");
+            MessageConsumer consumer = queueSession.createConsumer(queue);
 
-            if ( !messagesInQueue.hasMoreElements() ) {
-                System.out.println("No messages in queue");
-            } else {
-                while (messagesInQueue.hasMoreElements()) {
-                    Message tempMsg = (Message)messagesInQueue.nextElement();
-                    System.out.println("Message: " + tempMsg); } }
+            while (true) {
+                Message msg = consumer.receive(5000);
+                if (msg instanceof TextMessage) {
+                    TextMessage tm = (TextMessage) msg;
+                    System.out.println(tm.getText());
+                }
+                else{
+                    System.out.println("Queue Empty");
+                    connection.stop();
+                    break;
+                }
+            }
             queueSession.close();
         }
         catch(Exception e)
