@@ -1,3 +1,5 @@
 # ActiveMQ
 
-learning ActiveMQ , This code has an errors and this is for review. 
+learning ActiveMQ , 
+The Enque us working fine but there was an error in deque.
+
