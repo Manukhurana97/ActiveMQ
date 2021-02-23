@@ -19,20 +19,28 @@ public class EmailConsumer {
     private static final Logger logger = LoggerFactory.getLogger(EmailConsumer.class);
 
 
-    @JmsListener(destination = "emailqueue", containerFactory = "EmailFactory")
-    public void messsageListener(Email email)
+    @JmsListener(destination = "data")
+    public void messsageListener(String data)
+    {
+        logger.info("Message "+ data);
+    }
+
+
+//    --------------------------------------------------------------------------------------------------
+    @JmsListener(destination = "emailed")
+    public void emailListener(String email)
     {
         logger.info("Message "+ email);
     }
-
 
     @Bean("EmailFactory")
     public DefaultJmsListenerContainerFactory myfactory(ConnectionFactory connectionFactory,
                                                            DefaultJmsListenerContainerFactoryConfigurer containerFactory){
 
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-        System.out.println("factory: "+factory);
+
         containerFactory.configure(factory, connectionFactory);
+
 
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
         converter.setTargetType(MessageType.OBJECT);
@@ -41,7 +49,4 @@ public class EmailConsumer {
         factory.setMessageConverter(converter);
         return factory;
     }
-
-
-
 }

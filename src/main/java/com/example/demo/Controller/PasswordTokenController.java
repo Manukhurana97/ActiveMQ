@@ -22,7 +22,7 @@ public class PasswordTokenController {
     passwordresetimpl passwordimpl;
 
     @PostMapping("/clearpasswordtoken")
-    @Scheduled(cron = "*/30 * * * * * ")
+//    @Scheduled(cron = "* */24 * * * * ")
     public ResponseEntity<String> deletepasswordtoken()
     {
         Date date  = new Date();
