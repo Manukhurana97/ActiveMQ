@@ -1,6 +1,7 @@
 package com.example.demo.config;
 
 
+import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -33,7 +34,7 @@ public class JmsConfig {
 
     @Bean
     public JmsMessagingTemplate jmsMessagingTemplate(ConnectionFactory connectionFactory){
-        ActiveMQTopic activeMQ = new ActiveMQTopic(env.getProperty("jms.queue.out"));
+        ActiveMQQueue activeMQ = new ActiveMQQueue(env.getProperty("jms.queue.out"));
         JmsMessagingTemplate jmsMessagingTemplate = new JmsMessagingTemplate(connectionFactory);
         jmsMessagingTemplate.setDefaultDestination(activeMQ);
 

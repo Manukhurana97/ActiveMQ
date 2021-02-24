@@ -3,17 +3,19 @@ package com.example.demo.Controller;
 import com.example.demo.model.Email;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.activemq.ActiveMQConnection;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jms.core.JmsMessagingTemplate;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.jms.*;
-import java.util.Enumeration;
+
 
 
 @RequestMapping("/Queue")
@@ -21,7 +23,8 @@ import java.util.Enumeration;
 public class PublishController {
 
     @Autowired
-    private JmsTemplate jmsTemplate;
+    private  JmsTemplate jmsTemplate;
+
 
 
 //    for passing string
@@ -49,11 +52,10 @@ public class PublishController {
                     System.out.println(tm);
                     return tm;
                 }
-                catch(Exception e){
-                    throw new RuntimeException(e);
-                }
+                catch(JsonProcessingException e){
+                    throw new RuntimeException(e); }
             });
-            return new ResponseEntity<>("Sent Seccessfully",HttpStatus.OK);
+            return new ResponseEntity<>("Sent Successfully",HttpStatus.OK);
         }
         catch(Exception e)
         {
@@ -67,28 +69,28 @@ public class PublishController {
         try {
             ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
             Connection connection = connectionFactory.createConnection();
-            connection.start();
-            Session queueSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Queue queue = queueSession.createQueue("emailed_temp");
-            MessageConsumer consumer = queueSession.createConsumer(queue);
 
-            while (true) {
-                Message msg = consumer.receive(5000);
-                if (msg instanceof TextMessage) {
-                    TextMessage tm = (TextMessage) msg;
-                    System.out.println(tm.getText());
-                }
-                else{
-                    System.out.println("Queue Empty");
-                    connection.stop();
-                    break;
-                }
-            }
-            queueSession.close();
+            Session queueSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+            Queue queue = queueSession.createQueue("email");
+
+            // Step 5. Create a JMS Session
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+            // Step 9. Create a JMS Message Consumer
+            MessageConsumer messageConsumer = session.createConsumer(queue);
+
+            // Step 10. Start the Connection
+            connection.start();
+
+            // Step 11. Receive the message
+            TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
+
+            System.out.println("Received message: " + messageReceived.getText());
         }
         catch(Exception e)
         {
-            System.out.println(e.toString() );
+            System.out.println(e.toString());
         }
     }
 

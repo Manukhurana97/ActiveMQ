@@ -25,11 +25,10 @@ public class EmailConsumer {
         logger.info("Message "+ data);
     }
 
-
 //    --------------------------------------------------------------------------------------------------
 
-    @JmsListener(destination = "emailed")
-    public void emailListener(String email)
+    @JmsListener(destination = "emailed", containerFactory = "EmailFactory")
+    public void emailListener(Email email)
     {
         logger.info("Message "+ email);
     }
@@ -39,12 +38,12 @@ public class EmailConsumer {
                                                            DefaultJmsListenerContainerFactoryConfigurer containerFactory){
 
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-
+        // This provides all boot's default to this factory, including the message converter
         containerFactory.configure(factory, connectionFactory);
 
-
+        // You could still override some of Boot's default if necessary.
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        converter.setTargetType(MessageType.OBJECT);
+        converter.setTargetType(MessageType.TEXT);
         converter.setTypeIdPropertyName("emailinfo");
 
         factory.setMessageConverter(converter);
